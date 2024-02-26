@@ -39,4 +39,43 @@ genre_matrix2 <- as.data.frame(genre_matrix[-1,], stringsAsFactors = FALSE)
 for(col in 1:ncol(genre_matrix2)){
   genre_matrix2[,col] <- as.integer(genre_matrix2[,col])
 }
-str(genre_matrix2)
+#str(genre_matrix2)
+
+SearchMatrix <- cbind(movie_data[,1:2], genre_matrix2[])
+#head(SearchMatrix)
+
+RatingMatrix <- dcast(rating_data,userId~movieId, value.var = "rating", na.rm = FALSE)
+RatingMatrix <- as.matrix(RatingMatrix[,-1])
+str(RatingMatrix)
+summary(RatingMatrix)
+any(is.na(RatingMatrix))
+RatingMatrix <- as(RatingMatrix, "RealRatingMatrix")
+class(RatingMatrix)
+
+RecommendationModel <- recommenderRegistry$get_entries(dataType = "RealRatingMatrix")
+names(RecommendationModel)
+ 
+lapply(RecommendationModel, "[[", "description")
+ 
+RecommendationModel$IBCF_RealRatingMatrix$parameters
+
+#Exploring Similar Data
+similarity_matrix <- similarity(RatingMatrix[1:4, ],
+                                method = "cosine",
+                                which = "users")
+
+as.matrix(similarity_matrix)
+image(as.matrix(similarity_matrix), main = "User's Similarities")
+
+movie_similarity <- similarity(RatingMatrix[, 1:4],
+                               method = "cosine",
+                               which = "items")
+
+as.matrix(movie_similarity)
+image(as.matrix(movie_similarity), main = "Movies Similarity")
+
+rating_values <- as.vector(RatingMatrix@data)
+unique(rating_values)
+
+TableOfRating <- table(rating_values)
+#TableOfRating
